@@ -1,0 +1,127 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage{minted} % code snippets
+\usepackage{geometry} % margins
+\geometry{
+    left=30mm,
+    top=25mm,
+    right=30mm
+}
+\setlength{\parindent}{0cm}
+\usepackage{graphicx} % images
+\usepackage{hyperref} % links
+\usepackage{titling} % center front page
+\usepackage[T1]{fontenc} % fix polish characters bug
+\usepackage{textcomp} % no
+\usepackage[dvipsnames]{xcolor} % colors
+
+\usepackage{tabularx} % table
+\newcolumntype{A}{>{\hsize=.05\hsize}X}
+\newcolumntype{B}{>{\hsize=.10\hsize}X}
+\newcolumntype{C}{>{\hsize=.15\hsize}X}
+\newcolumntype{D}{>{\hsize=.20\hsize}X}
+\newcolumntype{E}{>{\hsize=.25\hsize}X}
+\newcolumntype{F}{>{\hsize=.30\hsize}X}
+\newcolumntype{G}{>{\hsize=.35\hsize}X}
+\newcolumntype{H}{>{\hsize=.40\hsize}X}
+\newcolumntype{I}{>{\hsize=.45\hsize}X}
+\newcolumntype{J}{>{\hsize=.50\hsize}X}
+\newcolumntype{K}{>{\hsize=.55\hsize}X}
+\newcolumntype{L}{>{\hsize=.60\hsize}X}
+\newcolumntype{M}{>{\hsize=.65\hsize}X}
+\newcolumntype{N}{>{\hsize=.70\hsize}X}
+\newcolumntype{O}{>{\hsize=.75\hsize}X}
+\newcolumntype{P}{>{\hsize=.80\hsize}X}
+\newcolumntype{Q}{>{\hsize=.85\hsize}X}
+\newcolumntype{R}{>{\hsize=.90\hsize}X}
+\newcolumntype{S}{>{\hsize=.95\hsize}X}
+\newcolumntype{T}{>{\hsize=1.00\hsize}X}
+
+\renewcommand\maketitlehooka{\null\mbox{}\vfill}
+\renewcommand\maketitlehookd{\vfill\null}
+
+% images
+\usepackage{float}
+\usepackage{graphicx}
+\newcommand{\img}[4]{
+    \begin{figure}
+    \centering
+    \includegraphics[width=#4\textwidth]{#1}
+    \caption{#2}
+    \label{#3}
+    \end{figure}
+}
+
+% bibliography
+\usepackage[
+style=numeric,
+sorting=none,
+isbn=false,
+doi=true,
+url=true,
+backref=false,
+backrefstyle=none,
+maxnames=10,
+giveninits=true,
+abbreviate=true,
+defernumbers=false,
+backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\textbf{Argo}}
+\author{Gabriel Kaźmierczak\\ Dariusz Piwowarski\\ Wojciech Przybytek\\ Przemysław Roman}
+\date{2024}
+
+\begin{document}
+
+\begin{titlingpage}
+\maketitle
+\end{titlingpage}
+
+\newpage
+\tableofcontents
+
+\newpage
+\section{Wstęp}
+
+\newpage
+\section{Podstawy teoretyczne / stos technologiczny}
+\textbf{Kubernetes}\cite{kubernetes} to oprogramowanie open source służące do automatyzacji wdrażania, skalowania i zarządzania aplikacjami kontenerowymi. Zostało zaprojektowane przez Google, a obecnie jest utrzymywane przez Cloud Native Computing Foundation. Kubernetes dostarcza platformę do uruchamiania aplikacji w kontenerach na dużą skalę, zarządzając infrastrukturą i zapewniając funkcje, takie jak self-healing (automatyczne restartowanie kontenerów), odkrywanie usług i load balancing, przechowywanie danych, skalowanie i wiele innych.
+
+\textbf{Argo} \cite{argo} jest projektem open source, który dostarcza narzędzia do tworzenia, uruchamiania i zarządzania pracami w kontenerach Kubernetes. Składa się z podprojektów, w których skład wchodzą Argo Workflows, Argo CD, Argo Rollouts oraz Argo Events.
+
+\textbf{\href{https://argoproj.github.io/workflows/}{Argo Workflows}} to silnik do tworzenia i uruchamiania prac w kontenerach. Pozwala na definiowanie złożonych przepływów pracy (workflow), które mogą obejmować wiele zadań uruchamianych w różnych kontenerach, z możliwością kontroli przepływu, takiej jak równoległe lub sekwencyjne uruchamianie zadań, decyzje warunkowe, pętle i inne. Argo Workflows jest szczególnie przydatne w środowiskach takich jak przetwarzanie danych, czy uczenie maszynowe, gdzie istnieje potrzeba koordynacji wielu zadań.
+
+\textbf{\href{https://argoproj.github.io/cd}{Argo CD}} to narzędzie do ciągłej dostawy (Continuous Delivery, CD), które implementuje podejście GitOps do zarządzania infrastrukturą. W modelu GitOps, żądane stany systemów są zapisywane w repozytorium Git, a narzędzia automatycznie aktualizują systemy, aby dopasować je do stanu zapisanego w Git. Argo CD monitoruje repozytorium i automatycznie wdraża zmiany na środowiska Kubernetes, gdy stan w Git się zmienia.
+
+Oba omawiane podprojekty Argo są zintegrowane z Kubernetes i wykorzystują jego funkcje, takie jak API, schematy autoryzacji i mechanizmy skalowania. Dzięki temu są one naturalnym rozszerzeniem ekosystemu Kubernetes i mogą być łatwo zintegrowane z innymi narzędziami w tym ekosystemie.
+
+\newpage
+\section{Koncepcja studium przypadku}
+
+\newpage
+\section{Architektura rozwiązania}
+
+\newpage
+\section{Konfiguracja środowiska}
+
+\newpage
+\section{Instalacja narzędzi}
+
+\newpage
+\section{Reprodukcja środowiska}
+
+\newpage
+\section{Reprodukcja demo}
+
+\newpage
+\section{Podsumowanie}
+
+\newpage
+\nocite{*}
+\printbibliography[heading=bibintoc,title={Źródła}]
+
+\end{document}

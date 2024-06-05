@@ -76,40 +76,97 @@ backend=biber]{biblatex}
 \date{2024}
 
 \begin{document}
-
 \begin{titlingpage}
 \maketitle
 \end{titlingpage}
 
+
 \newpage
 \tableofcontents
 
-\newpage
-\section{Wstęp}
 
 \newpage
-\section{Podstawy teoretyczne / stos technologiczny}
+\section{Wstęp}
+% Ogólny opis tematyki
+
+\subsection*{Podział pracy w zespole}
+Ponieważ w ramach tego projektu omawiamy dwa zastosowania Argo zdecydowaliśmy na podział zespołu na dwa podzespoły, każdy omawiający jedno z zastosowań.
+Docelowo praca obu podzespołów ma zostać połączona, tworząc integralną całość.
+
+\subsubsection*{Podzespół 1 - Argo CD}
+Osoby: Dariusz Piwowarski, Przemysław Roman
+
+Cele: Stworzenie klastra Kubernetes na AWS oraz uruchomienie w nim Argo CD i zintegrowanie go z repozytorium aplikacji
+
+\subsubsection*{Podzespół 2 - Argo Workflo}
+Osoby: Gabriel Kaźmierczak, Wojciech Przybytek
+
+Cele: Zapoznanie się z API Argo Workflows, napisanie aplikacji wykorzystującej to API oraz udostępniającej własny interfejs
+
+
+\newpage
+\section{Podstawy teoretyczne}
+\begin{description}
+\item{\textbf{Kubernetes}\cite{kubernetes}} to oprogramowanie open source służące do automatyzacji wdrażania, skalowania i zarządzania aplikacjami kontenerowymi. Zostało zaprojektowane przez Google, a obecnie jest utrzymywane przez Cloud Native Computing Foundation. Kubernetes dostarcza platformę do uruchamiania aplikacji w kontenerach na dużą skalę, zarządzając infrastrukturą i zapewniając funkcje, takie jak self-healing (automatyczne restartowanie kontenerów), odkrywanie usług i load balancing, przechowywanie danych, skalowanie i wiele innych.
+
+\item{\textbf{Argo}\cite{argo}} jest projektem open source, który dostarcza narzędzia do tworzenia, uruchamiania i zarządzania pracami w kontenerach Kubernetes. Składa się z podprojektów, w których skład wchodzą Argo Workflows, Argo CD, Argo Rollouts oraz Argo Events.
+
+\item{\textbf{Argo Workflows}\cite{argo-workflows}} to silnik do tworzenia i uruchamiania prac w kontenerach. Pozwala na definiowanie złożonych przepływów pracy (workflow), które mogą obejmować wiele zadań uruchamianych w różnych kontenerach, z możliwością kontroli przepływu, takiej jak równoległe lub sekwencyjne uruchamianie zadań, decyzje warunkowe, pętle i inne. Argo Workflows jest szczególnie przydatne w środowiskach takich jak przetwarzanie danych, czy uczenie maszynowe, gdzie istnieje potrzeba koordynacji wielu zadań.
+
+\item{\textbf{Argo CD}\cite{argo-cd}} to narzędzie do ciągłej dostawy (Continuous Delivery, CD), które implementuje podejście GitOps do zarządzania infrastrukturą. W modelu GitOps, żądane stany systemów są zapisywane w repozytorium Git, a narzędzia automatycznie aktualizują systemy, aby dopasować je do stanu zapisanego w Git. Argo CD monitoruje repozytorium i automatycznie wdraża zmiany na środowiska Kubernetes, gdy stan w Git się zmienia.
+\end{description}
+
+Oba omawiane podprojekty Argo są zintegrowane z Kubernetes i wykorzystują jego funkcje, takie jak API, schematy autoryzacji i mechanizmy skalowania. Dzięki temu są one naturalnym rozszerzeniem ekosystemu Kubernetes i mogą być łatwo zintegrowane z innymi narzędziami w tym ekosystemie.
+
+
+\section{Stos technologiczny}
+\begin{description}
+\item{\textbf{Amazon Elastic Kubernetes Service}\cite{aws-eks}} zapewni infrastrukturę na której będzie działał klaster Kubernetes
+
+\item{\textbf{GitHub}\cite{github}} umożliwi przechowywanie repozytorium Git z kodem źródłowym aplikacji
+
+\item{\textbf{Python 3}\cite{python}} jako język implementacji aplikacji
+
+\item{\textbf{Hera}\cite{hera}} to biblioteka, która zostanie wykorzystane do komunikacji z API Argo
+\end{description}
+
 
 \newpage
 \section{Koncepcja studium przypadku}
+Demo będzie zawierać aplikację działającą w klastrze Kubernetes, która zaprezentuje możliwości narzędzi Argo Workflows oraz Argo CD.
+
+Aplikacja będzie służyć jako punkt wejścia do uruchamiania zadań w Argo Workflows. Użytkownik będzie mógł wysyłać
+żądania HTTP do aplikacji uruchamiające odpowiednie workflowy za pomocą API do Argo Workflows.
+
+Każda zmiana w repozytorium przechowującym kod aplikacji będzie automatycznie wykrywana przez Argo CD, które następnie zaktualizuje działającą aplikację na klastrze.
+
 
 \newpage
 \section{Architektura rozwiązania}
 
+
 \newpage
 \section{Konfiguracja środowiska}
+% opis słowny
+
+\img{img/suu_env_conf.drawio.png}{Konfiguracja środowiska}{fig:env-conf}{1}
+
 
 \newpage
 \section{Instalacja narzędzi}
 
+
 \newpage
 \section{Reprodukcja środowiska}
+
 
 \newpage
 \section{Reprodukcja demo}
 
+
 \newpage
 \section{Podsumowanie}
+
 
 \newpage
 \nocite{*}

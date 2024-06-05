@@ -1,7 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{polski}
-\usepackage{minted} % code snippets
+\usepackage{minted}% code snippets
 \usepackage{geometry} % margins
 \geometry{
     left=30mm,
@@ -45,7 +45,7 @@
 \usepackage{float}
 \usepackage{graphicx}
 \newcommand{\img}[4]{
-    \begin{figure}
+    \begin{figure}[!htbp]
     \centering
     \includegraphics[width=#4\textwidth]{#1}
     \caption{#2}
@@ -69,6 +69,30 @@ defernumbers=false,
 backend=biber]{biblatex}
 \addbibresource{bibliography.bib}
 
+% md like code snippet (`)
+\usepackage{tcolorbox}
+\newcommand{\code}[1]{\mbox{
+    \ttfamily
+    \tcbox[
+        on line,
+        boxsep=0pt, left=4pt, right=4pt, top=2pt, bottom=2pt,
+        toprule=4pt, rightrule=0pt, bottomrule=0pt, leftrule=-4pt,
+        oversize=0pt, enlarge left by=0pt, enlarge right by=0pt,
+        colframe=white, colback=black!12
+    ]{#1}
+}}
+% permits newlines, add a newline before (```)
+\newcommand{\codeblock}[1]{\mbox{
+    \ttfamily
+    \tcbox[
+        on line,
+        boxsep=0pt, left=4pt, right=4pt, top=2pt, bottom=2pt,
+        toprule=4pt, rightrule=0pt, bottomrule=0pt, leftrule=-4pt,
+        oversize=0pt, enlarge left by=0pt, enlarge right by=0pt,
+        colframe=white, colback=black!12, capture=minipage
+    ]{#1}
+}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{\textbf{Argo}}
@@ -87,7 +111,7 @@ backend=biber]{biblatex}
 
 \newpage
 \section{Wstęp}
-% Ogólny opis tematyki
+Celem projektu jest zaprezentowanie działania Argo, czyli zestawu narzędzi open source stworzonych do zarządzania zadaniami w kontenerach Kubernetes. Narzędzia te są szeroko stosowane do automatyzacji wdrażania aplikacji, zarządzania ich cyklem życia oraz koordynacji złożonych przepływów pracy. W ramach projektu skupimy się na dwóch kluczowych komponentach Argo: Argo CD, które umożliwia ciągłą dostawę aplikacji przy użyciu podejścia GitOps, oraz Argo Workflows, które pozwala na definiowanie i zarządzanie złożonymi przepływami pracy w środowisku Kubernetes.
 
 \subsection*{Podział pracy w zespole}
 Ponieważ w ramach tego projektu omawiamy dwa zastosowania Argo zdecydowaliśmy na podział zespołu na dwa podzespoły, każdy omawiający jedno z zastosowań.
@@ -103,8 +127,6 @@ Osoby: Gabriel Kaźmierczak, Wojciech Przybytek
 
 Cele: Zapoznanie się z API Argo Workflows, napisanie aplikacji wykorzystującej to API oraz udostępniającej własny interfejs
 
-
-\newpage
 \section{Podstawy teoretyczne}
 \begin{description}
 \item{\textbf{Kubernetes}\cite{kubernetes}} to oprogramowanie open source służące do automatyzacji wdrażania, skalowania i zarządzania aplikacjami kontenerowymi. Zostało zaprojektowane przez Google, a obecnie jest utrzymywane przez Cloud Native Computing Foundation. Kubernetes dostarcza platformę do uruchamiania aplikacji w kontenerach na dużą skalę, zarządzając infrastrukturą i zapewniając funkcje, takie jak self-healing (automatyczne restartowanie kontenerów), odkrywanie usług i load balancing, przechowywanie danych, skalowanie i wiele innych.
@@ -131,7 +153,6 @@ Oba omawiane podprojekty Argo są zintegrowane z Kubernetes i wykorzystują jego
 \end{description}
 
 
-\newpage
 \section{Koncepcja studium przypadku}
 Demo będzie zawierać aplikację działającą w klastrze Kubernetes, która zaprezentuje możliwości narzędzi Argo Workflows oraz Argo CD.
 
@@ -141,30 +162,75 @@ Aplikacja będzie służyć jako punkt wejścia do uruchamiania zadań w Argo Wo
 Każda zmiana w repozytorium przechowującym kod aplikacji będzie automatycznie wykrywana przez Argo CD, które następnie zaktualizuje działającą aplikację na klastrze.
 
 
-\newpage
 \section{Architektura rozwiązania}
 
-
-\newpage
 \section{Konfiguracja środowiska}
-% opis słowny
 
 \img{img/suu_env_conf.drawio.png}{Konfiguracja środowiska}{fig:env-conf}{1}
+% opis słowny
 
 
-\newpage
 \section{Instalacja narzędzi}
+Do zrealizowania projektu niezbędne jest zainstalowanie kilku narzędzi. W zależności od używanego systemu operacyjnego, proces instalacji może się różnić. Poniżej znajdują się linki do instrukcji instalacji dla poszczególnych narzędzi:
+
+\begin{itemize}
+    \item \href{https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli}{\textbf{Terraform}}\cite{terraform}
+    \item \href{https://kubernetes.io/docs/tasks/tools/}{\textbf{kubectl}}\cite{kubectl}
+    \item \href{https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html}{\textbf{AWS CLI}}\cite{aws-cli}
+    \item \href{https://argo-cd.readthedocs.io/en/stable/cli_installation/}{\textbf{argocd}}
+\end{itemize}
 
 
-\newpage
 \section{Reprodukcja środowiska}
+\subsection{Klaster Kubernetes}
+Bazowaliśmy na \href{https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks}{Provision an EKS cluster (AWS)} oraz \href{https://github.com/hashicorp/learn-terraform-provision-eks-cluster}{Learn Terraform - Provision an EKS Cluster}.
+\begin{enumerate}
+    \item \code{git clone https://github.com/SUU-Argo/infra}
+    \item Umieść konfigurację i dane logowania do AWS w \code{\~{}/.aws/}
+    \item W związku z tym, że używamy AWS Academy Learner Lab konieczne jest wykorzystanie istniejącej roli LabRole i podanie jej arn jako zmiennej w terraformie. Pobranie arn: \\
+    \code{aws iam get-role -{}-role-name LabRole | grep Arn}
+    \item \code{cd infra/terraform}
+    \item \code{terraform init}
+    \item \code{terraform apply -var="aws\_iam\_role=<your LabRole arn>"}
+    \item Sprawdź nazwę klastra: \code{aws eks list-clusters}
+    \item Wygeneruj kubeconfig: \code{aws eks update-kubeconfig -{}-name <your cluster name>}
+    \item Zweryfikuj połączenie: \code{kubectl get nodes}
+\end{enumerate}
 
 
-\newpage
+
+\subsection{Argo CD}
+Przygotowane w oparciu o \href{https://argo-cd.readthedocs.io/en/stable/getting_started/}{Argo - Getting Started}
+\begin{enumerate}
+    \item Utwórz namespace: \code{kubectl create namespace argocd}
+    \item Zainstaluj ArgoCD: \\
+    \codeblock{kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/ stable/manifests/install.yaml}
+    \item Przekieruj Argo na localhost (zajmuje terminal): \\
+    \code{kubectl port-forward svc/argocd-server -n argocd 8080:443}
+    \item Uzyskaj dostęp do Argo za pomocą przeglądarki internetowej: \href{https://localhost:8080}{https://localhost:8080}
+    \item Uzyskaj hasło: \code{argocd admin initial-password -n argocd}
+    \item Zaloguj się: \code{argocd login localhost:8080 -{}-username admin -{}-password <password>}
+\end{enumerate}
+
+\subsection{workflow-api}
+\begin{enumerate}
+    \item Ustaw namespace: \code{kubectl config set-context -{}-current -{}-namespace=argocd}
+    \item Utwórz aplikację z repozytorium: \\
+    \codeblock{argocd app create workflow-api \textbackslash \\
+    -{}-repo https://github.com/SUU-Argo/workflow-api.git \textbackslash \\
+    -{}-path deploy \textbackslash \\
+    -{}-dest-server https://kubernetes.default.svc \textbackslash \\
+    -{}-dest-namespace default}
+    \item Wyświetl szczegóły instancji aplikacji: \code{argocd app get workflow-api}, początkowy status to \code{OutOfSync}
+    \item Włącz automatyczną synchronizację aplikacji z repozytorium: \\ \code{argocd app set workflow-api --sync-policy automated}
+    \item Przekieruj aplikację na localhost (zajmuje terminal): \\ \code{kubectl port-forward svc/workflow-api -n default 8081:8080}
+    \item Zweryfikuj dostępność za pomocą przeglądarki internetowej
+\end{enumerate}
+
+
 \section{Reprodukcja demo}
 
 
-\newpage
 \section{Podsumowanie}
 
 

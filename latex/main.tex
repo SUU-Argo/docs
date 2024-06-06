@@ -93,6 +93,11 @@ backend=biber]{biblatex}
     ]{#1}
 }}
 
+\renewcommand{\figureautorefname}{Rys.}
+\renewcommand{\tableautorefname}{Tab.}
+\renewcommand{\sectionautorefname}{Sek.}
+\renewcommand{\subsectionautorefname}{Subsek.}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{\textbf{Argo}}
@@ -161,7 +166,9 @@ Każda zmiana w repozytorium przechowującym kod aplikacji będzie automatycznie
 
 
 \section{Architektura rozwiązania}
-\img{img/suu_env_conf.drawio.png}{Architektura rozwiązania}{fig:env-conf}{1}
+Architektura rozwiązania dla rozważanego studium przypadku widoczna jest na \autoref{fig:env-conf}. Zarówno narzędzia Argo jak i nasza aplikacja (workflow-api) uruchomione są na klastrze Kubernetesa EKS. Argo CD integruje się z Githubem, z którego pobiera zmiany oraz z klastrem w celu aplikowania ich. Workflow-api udostępnia endpointy, na które użytkownicy mogą zlecać obliczenia.
+
+\img{img/suu_env_conf.drawio.png}{Architektura rozwiązania}{fig:env-conf}{0.9}
 % \section{Konfiguracja środowiska}
 
 

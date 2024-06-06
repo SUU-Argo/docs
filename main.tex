@@ -122,7 +122,7 @@ Osoby: Dariusz Piwowarski, Przemysław Roman
 
 Cele: Stworzenie klastra Kubernetes na AWS oraz uruchomienie w nim Argo CD i zintegrowanie go z repozytorium aplikacji
 
-\subsubsection*{Podzespół 2 - Argo Workflo}
+\subsubsection*{Podzespół 2 - Argo Workflows}
 Osoby: Gabriel Kaźmierczak, Wojciech Przybytek
 
 Cele: Zapoznanie się z API Argo Workflows, napisanie aplikacji wykorzystującej to API oraz udostępniającej własny interfejs
@@ -154,20 +154,15 @@ Oba omawiane podprojekty Argo są zintegrowane z Kubernetes i wykorzystują jego
 
 
 \section{Koncepcja studium przypadku}
-Demo będzie zawierać aplikację działającą w klastrze Kubernetes, która zaprezentuje możliwości narzędzi Argo Workflows oraz Argo CD.
-
-Aplikacja będzie służyć jako punkt wejścia do uruchamiania zadań w Argo Workflows. Użytkownik będzie mógł wysyłać
-żądania HTTP do aplikacji uruchamiające odpowiednie workflowy za pomocą API do Argo Workflows.
-
+Demo będzie zawierać aplikację działającą w klastrze Kubernetes, która zaprezentuje możliwości narzędzi Argo Workflows oraz Argo CD. 
+Aplikacja będzie służyć jako punkt wejścia do uruchamiania zadań w Argo Workflows. 
+Użytkownik będzie mógł wysyłać żądania HTTP do aplikacji uruchamiające odpowiednie workflowy za pomocą API do Argo Workflows. 
 Każda zmiana w repozytorium przechowującym kod aplikacji będzie automatycznie wykrywana przez Argo CD, które następnie zaktualizuje działającą aplikację na klastrze.
 
 
 \section{Architektura rozwiązania}
-
-\section{Konfiguracja środowiska}
-
-\img{img/suu_env_conf.drawio.png}{Konfiguracja środowiska}{fig:env-conf}{1}
-% opis słowny
+\img{img/suu_env_conf.drawio.png}{Architektura rozwiązania}{fig:env-conf}{1}
+% \section{Konfiguracja środowiska}
 
 
 \section{Instalacja narzędzi}
@@ -177,7 +172,7 @@ Do zrealizowania projektu niezbędne jest zainstalowanie kilku narzędzi. W zale
     \item \href{https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli}{\textbf{Terraform}}\cite{terraform}
     \item \href{https://kubernetes.io/docs/tasks/tools/}{\textbf{kubectl}}\cite{kubectl}
     \item \href{https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html}{\textbf{AWS CLI}}\cite{aws-cli}
-    \item \href{https://argo-cd.readthedocs.io/en/stable/cli_installation/}{\textbf{argocd}}
+    \item \href{https://argo-cd.readthedocs.io/en/stable/cli_installation/}{\textbf{argocd CLI}}
 \end{itemize}
 
 
@@ -189,9 +184,8 @@ Bazowaliśmy na \href{https://developer.hashicorp.com/terraform/tutorials/kubern
     \item Umieść konfigurację i dane logowania do AWS w \code{\~{}/.aws/}
     \item W związku z tym, że używamy AWS Academy Learner Lab konieczne jest wykorzystanie istniejącej roli LabRole i podanie jej arn jako zmiennej w terraformie. Pobranie arn: \\
     \code{aws iam get-role -{}-role-name LabRole | grep Arn}
-    \item \code{cd infra/terraform}
-    \item \code{terraform init}
-    \item \code{terraform apply -var="aws\_iam\_role=<your LabRole arn>"}
+    \item \code{terraform -chdir=infra/terraform init}
+    \item \code{terraform -chdir=infra/terraform apply -var="aws\_iam\_role=<your LabRole arn>"}
     \item Sprawdź nazwę klastra: \code{aws eks list-clusters}
     \item Wygeneruj kubeconfig: \code{aws eks update-kubeconfig -{}-name <your cluster name>}
     \item Zweryfikuj połączenie: \code{kubectl get nodes}
@@ -204,12 +198,26 @@ Przygotowane w oparciu o \href{https://argo-cd.readthedocs.io/en/stable/getting_
 \begin{enumerate}
     \item Utwórz namespace: \code{kubectl create namespace argocd}
     \item Zainstaluj ArgoCD: \\
-    \codeblock{kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/ stable/manifests/install.yaml}
+    \codeblock{kubectl -n argocd apply -f https://raw.githubusercontent.com/argoproj/argo-cd/ stable/manifests/install.yaml}
     \item Przekieruj Argo na localhost (zajmuje terminal): \\
-    \code{kubectl port-forward svc/argocd-server -n argocd 8080:443}
+    \code{kubectl -n argocd port-forward svc/argocd-server 8080:443}
     \item Uzyskaj dostęp do Argo za pomocą przeglądarki internetowej: \href{https://localhost:8080}{https://localhost:8080}
     \item Uzyskaj hasło: \code{argocd admin initial-password -n argocd}
     \item Zaloguj się: \code{argocd login localhost:8080 -{}-username admin -{}-password <password>}
+\end{enumerate}
+
+\subsection{Argo Workflows}
+\begin{enumerate}
+    \item Stwórz namespace: \code{kubectl create namespace argo}
+    \item Zainstaluj Argo Workflows: \\
+    \codeblock{kubectl -n argo apply -f "https://github.com/argoproj/argo- \\ 
+    workflows/releases/download/v3.5.7/quick-start-minimal.yaml"}
+    \item Zaaplikuj łatkę do argo-server (repozytorium infra): \\
+    \codeblock{kubectl -n argo patch deployment argo-server -{}-type JSON \\ 
+    -{}-patch-file k8s/argo-server-patch.yaml}
+    \item Przekieruj argo-server na localhost (zajmuje terminal): \\
+    \code{kubectl -n argo port-forward svc/argo-server 2746:2746}
+    \item Uzyskaj dostęp do Argo za pomocą przeglądarki internetowej: \href{https://localhost:2746}{https://localhost:2746}
 \end{enumerate}
 
 \subsection{workflow-api}
@@ -220,11 +228,11 @@ Przygotowane w oparciu o \href{https://argo-cd.readthedocs.io/en/stable/getting_
     -{}-repo https://github.com/SUU-Argo/workflow-api.git \textbackslash \\
     -{}-path deploy \textbackslash \\
     -{}-dest-server https://kubernetes.default.svc \textbackslash \\
-    -{}-dest-namespace default}
+    -{}-dest-namespace argo}
     \item Wyświetl szczegóły instancji aplikacji: \code{argocd app get workflow-api}, początkowy status to \code{OutOfSync}
-    \item Włącz automatyczną synchronizację aplikacji z repozytorium: \\ \code{argocd app set workflow-api --sync-policy automated}
-    \item Przekieruj aplikację na localhost (zajmuje terminal): \\ \code{kubectl port-forward svc/workflow-api -n default 8081:8080}
-    \item Zweryfikuj dostępność za pomocą przeglądarki internetowej
+    \item Włącz automatyczną synchronizację aplikacji z repozytorium: \\ \code{argocd app set workflow-api -{}-sync-policy automated}
+    \item Przekieruj aplikację na localhost (zajmuje terminal): \\ \code{kubectl -n argo port-forward svc/workflow-api 8081:8080}
+    \item Zweryfikuj dostępność za pomocą przeglądarki internetowej: \href{http://localhost:8081}{http://localhost:8081}
 \end{enumerate}
 
 

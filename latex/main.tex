@@ -69,6 +69,11 @@ defernumbers=false,
 backend=biber]{biblatex}
 \addbibresource{bibliography.bib}
 
+% \AtEveryBibitem{
+%     \clearfield{urlyear}
+%     \clearfield{urlmonth}
+% }
+
 % md like code snippet (`)
 \usepackage{tcolorbox}
 \newcommand{\code}[1]{\mbox{
@@ -100,7 +105,7 @@ backend=biber]{biblatex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{\textbf{Argo}}
+\title{\textbf{Środowiska Udostępniania Usług - Argo}}
 \author{Gabriel Kaźmierczak\\ Dariusz Piwowarski\\ Wojciech Przybytek\\ Przemysław Roman}
 \date{2024}
 
@@ -116,21 +121,19 @@ backend=biber]{biblatex}
 
 \newpage
 \section{Wstęp}
-Celem projektu jest zaprezentowanie działania Argo, czyli zestawu narzędzi open source stworzonych do zarządzania zadaniami w kontenerach Kubernetes. Narzędzia te są szeroko stosowane do automatyzacji wdrażania aplikacji, zarządzania ich cyklem życia oraz koordynacji złożonych przepływów pracy. W ramach projektu skupimy się na dwóch kluczowych komponentach Argo: Argo CD, które umożliwia ciągłą dostawę aplikacji przy użyciu podejścia GitOps, oraz Argo Workflows, które pozwala na definiowanie i zarządzanie złożonymi przepływami pracy w środowisku Kubernetes.
+Celem projektu jest zaprezentowanie działania Argo, czyli zestawu open source'owych narzędzi stworzonych do zarządzania zadaniami w kontenerach Kubernetes. Narzędzia te są szeroko stosowane do automatyzacji wdrażania aplikacji, zarządzania ich cyklem życia oraz koordynacji złożonych przepływów pracy. W ramach projektu skupimy się na dwóch kluczowych komponentach Argo: Argo CD, które umożliwia ciągłą dostawę aplikacji przy użyciu podejścia GitOps, oraz Argo Workflows, które pozwala na definiowanie i zarządzanie złożonymi przepływami pracy w środowisku Kubernetes.
 
 \subsection*{Podział pracy w zespole}
 Ponieważ w ramach tego projektu omawiamy dwa zastosowania Argo zdecydowaliśmy na podział zespołu na dwa podzespoły, każdy omawiający jedno z zastosowań.
 Docelowo praca obu podzespołów ma zostać połączona, tworząc integralną całość.
 
 \subsubsection*{Podzespół 1 - Argo CD}
-Osoby: Dariusz Piwowarski, Przemysław Roman
-
-Cele: Stworzenie klastra Kubernetes na AWS oraz uruchomienie w nim Argo CD i zintegrowanie go z repozytorium aplikacji
+\textbf{Osoby}: Dariusz Piwowarski, Przemysław Roman \\
+\textbf{Cele}: Stworzenie klastra Kubernetes na AWS oraz uruchomienie w nim Argo CD i zintegrowanie go z repozytorium aplikacji
 
 \subsubsection*{Podzespół 2 - Argo Workflows}
-Osoby: Gabriel Kaźmierczak, Wojciech Przybytek
-
-Cele: Zapoznanie się z API Argo Workflows, napisanie aplikacji wykorzystującej to API oraz udostępniającej własny interfejs
+\textbf{Osoby}: Gabriel Kaźmierczak, Wojciech Przybytek \\
+\textbf{Cele}: Zapoznanie się z API Argo Workflows, napisanie aplikacji wykorzystującej to API oraz udostępniającej własny interfejs
 
 \section{Podstawy teoretyczne}
 \begin{description}
@@ -185,7 +188,7 @@ Do zrealizowania projektu niezbędne jest zainstalowanie kilku narzędzi. W zale
 
 \section{Reprodukcja środowiska}
 \subsection{Klaster Kubernetes}
-Bazowaliśmy na \href{https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks}{Provision an EKS cluster (AWS)} oraz \href{https://github.com/hashicorp/learn-terraform-provision-eks-cluster}{Learn Terraform - Provision an EKS Cluster}.
+Bazowane na \href{https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks}{Provision an EKS cluster (AWS)} oraz \href{https://github.com/hashicorp/learn-terraform-provision-eks-cluster}{Learn Terraform - Provision an EKS Cluster}.
 \begin{enumerate}
     \item \code{git clone https://github.com/SUU-Argo/infra}
     \item Umieść konfigurację i dane logowania do AWS w \code{\~{}/.aws/}
@@ -214,6 +217,7 @@ Przygotowane w oparciu o \href{https://argo-cd.readthedocs.io/en/stable/getting_
 \end{enumerate}
 
 \subsection{Argo Workflows}
+Bazowane na \href{https://argo-workflows.readthedocs.io/en/latest/quick-start/}{Argo Workflows - The workflow engine for Kubernetes - Quick start}
 \begin{enumerate}
     \item Stwórz namespace: \code{kubectl create namespace argo}
     \item Zainstaluj Argo Workflows: \\
@@ -243,14 +247,68 @@ Przygotowane w oparciu o \href{https://argo-cd.readthedocs.io/en/stable/getting_
 \end{enumerate}
 
 
-\section{Reprodukcja demo}
+\newpage
+\section{Demo}
+\subsection{Argo Workflows}
+Zaimplementowana aplikacja workflow-api pozwala poprzez zapytania HTTP tworzyć workflowy w naszym klastrze Kubernetes. Zaimplementowane zostały 3 przykładowe endpointy.
+
+\img{img/swagger.png}{Dostępne endpointy}{fig:workflow-api-endpoints}{0.9}
+
+\begin{description}
+    \item{\textbf{/hello}} - przyjmuje parametr \textit{name} i tworzy workflow z workerem drukującym tekst "Hello <name>".
+    \item{\textbf{/artifact}} - tworzy workflow składający się z dwóch kroków - pierwszy zapisuje w pliku tekstowym "Hello world", a drugi odczytuje zapisany plik i wypisuje jego zawartość.
+    \item{\textbf{/map-reduce}} - przyjmuje parametry \textit{workers} oraz \textit{text} i tworzy workflow, które dzieląc przekazany tekst pomiędzy wskazaną liczbę workerów, zlicza ilość wystąpień każdego słowa, a następnie wyniki przekazywane są do workera, który sumuje wyniki.
+\end{description}
+
+Demo opierać się będzie na przedstawieniu działania \textbf{/map-reduce}, w tym celu wykonane zostało zapytanie HTTP w programie Insomnia z przykładowymi parametrami (\autoref{fig:insomnia}). Jako wynik zwrócona została nazwa workflow, którą możemy następnie użyć do odczytania wyniku w Argo Workflows UI.
+
+\img{img/insomnia.png}{Zapytanie HTTP do workflow-api wraz z odpowiedzią}{fig:insomnia}{0.9}
+
+\newpage
+
+W Argo Workflows, zgodnie z przekazanymi parametrami utworzone zostało workflow (\autoref{fig:workers-graph}). W jego skład wchodzi m.in 5 workerów zliczających wystąpienia słów w przydzielonych do workera fragmentach tekstu.
+
+\img{img/workers_graph.png}{Graf workflow}{fig:workers-graph}{0.9}
+
+Otrzymany wynik widać na \autoref{fig:map-reduce-results}.
+
+\img{img/map_reduce_results.png}{Wynik map-reduce}{fig:map-reduce-results}{0.9}
+
+\newpage
+\subsection{Argo CD}
+Demonstracja możliwości Argo CD opiera się na wprowadzeniu zmian w repozytorium workflow-api. Oczekiwanym zachowaniem jest wprowadzenie tych modyfikacji do klastra w sposób automatyczny.
+
+Początkowy stan aplikacji widoczny przez przeglądarkę internetową (\autoref{fig:root-message-before}).
+
+\img{img/root_message_before.png}{Wiadomość po wykonaniu zapytania przed zmianami}{fig:root-message-before}{0.9}
+
+Wprowadzamy zmiany do repozytorium (\autoref{fig:git-changes}). Ponieważ nasza modyfikacja ogranicza się do kodu aplikacji konieczne jest wypchnięcie nowej wersji obrazu.
+
+\img{img/git_changes.png}{Zmiany w repozytorium}{fig:git-changes}{0.9}
+
+\newpage
+Nowy pod został utworzony (\autoref{fig:argocd-pod}).
+
+\img{img/argocd_pod.png}{Widok poda workflow-api w Argo CD UI}{fig:argocd-pod}{0.9}
+
+Deployment jest zsynchronizowany ze stanem w repozytorium (\autoref{fig:argocd-graph}).
+
+\img{img/argocd_graph.png}{Widok deploymentu workflow-api w Argo CD UI}{fig:argocd-graph}{0.9}
+
+\newpage
+Zaktualizowana aplikacja zwraca inne dane w głównej ścieżce (\autoref{fig:root-message-after}).
+
+\img{img/root_message_after.png}{Wiadomość po wykonaniu zapytania po zmianach}{fig:root-message-after}{0.9}
 
 
 \section{Podsumowanie}
+Projekt "Argo" miał na celu zademonstrowanie praktycznego zastosowania dwóch kluczowych narzędzi z pakietu Argo: Argo CD oraz Argo Workflows, w środowisku Kubernetes. Argo CD, zainstalowany i skonfigurowany na klastrze Amazon EKS, umożliwił automatyczną synchronizację aplikacji z repozytorium Git, zapewniając ciągłą dostawę aplikacji w modelu GitOps. Argo Workflows pozwolił na tworzenie workflow za pomocą API, co zostało zaprezentowane na przykładzie endpointu map-reduce. \\
+
+Przedstawione demo pokazuje możliwości Argo jako zestawu open source'owych narzędzi wspierających automatyzację, skalowalność i zarządzanie złożonymi zadaniami w nowoczesnych środowiskach chmurowych. Dokumentacja procesu instalacji i konfiguracji, a także stworzone aplikacje demo mogą posłużyć jako materiały referencyjne dla przyszłych implementacji. Projekt udowodnił, że narzędzia Argo są efektywnym rozszerzeniem ekosystemu Kubernetes, umożliwiającym sprawne zarządzanie i wdrażanie aplikacji.
 
 
 \newpage
-\nocite{*}
+% \nocite{*}
 \printbibliography[heading=bibintoc,title={Źródła}]
 
 \end{document}
